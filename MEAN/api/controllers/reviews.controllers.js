@@ -7,8 +7,24 @@ module.exports.reviewsGetAll = function (req, res) {
     console.log("GET hotelID", hotelId);
 
     Hotel.findById(hotelId).select('reviews').exec(function (err, doc) {
-    	console.log("Returned doc", doc);
-        res.status(200).json(doc.reviews);
+		var response = {
+        	status : 200,
+        	message : []
+      	};
+    	if (err) {
+			console.log("Error finding hotel");
+			response.status = 500;
+			response.message = err;
+      	} else if(!doc) {
+			console.log("Hotel id not found in database", hotelId);
+			response.status = 404;
+			response.message = {
+				"message" : "Hotel ID not found " + hotelId
+			};
+      	} else {
+        	response.message = doc.reviews ? doc.reviews : [];
+      	}
+      	res.status(response.status).json(response.message);
     });
 };
 
@@ -19,8 +35,31 @@ module.exports.reviewsGetOne = function (req, res) {
 	console.log("GET reviewId " + reviewId + " for hotelId " + hotelId);
 
 	Hotel.findById(hotelId).select('reviews').exec(function (err, hotel) {
-    	console.log("Returned hotel", hotel);
-    	var review = hotel.reviews.id(reviewId);
-        res.status(200).json(review);
+    	var response = {
+			status : 200,
+			message : {}
+		};
+		if (err) {
+			console.log("Error finding hotel");
+			response.status = 500;
+			response.message = err;
+		} else if(!hotel) {
+			console.log("Hotel id not found in database", id);
+			response.status = 404;
+			response.message = {
+			"message" : "Hotel ID not found " + id
+			};
+		} else {
+			// Get the review
+			response.message = hotel.reviews.id(reviewId);
+			// If the review doesn't exist Mongoose returns null
+			if (!response.message) {
+				response.status = 404;
+				response.message = {
+					"message" : "Review ID not found " + reviewId
+				};
+			}
+		}
+		res.status(response.status).json(response.message);
     });
 };
