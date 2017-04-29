@@ -1,9 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {Message} from "./message.model";
 import {MessageService} from "./message.service";
-/**
- * Created by wegneto on 29/04/17.
- */
+
 @Component({
     selector: 'app-message-list',
     template: `
@@ -21,6 +19,11 @@ export class MessageListComponent implements OnInit {
     constructor(private messageService: MessageService) {}
 
     ngOnInit() {
-        this.messages = this.messageService.getMessages();
+        this.messageService.getMessages()
+            .subscribe(
+                (messages: Message[]) => {
+                    this.messages = messages;
+                }
+            );
     }
 }
