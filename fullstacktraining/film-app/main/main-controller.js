@@ -1,11 +1,10 @@
 angular.module('myApp').controller('MainController', MainController);
 
-function MainController($http) {
+function MainController(FilmFactory) {
     var vm = this;
 
-    $http.get('http://swapi-tpiros.rhcloud.com/films').then(function(response) {
-        console.log(response)
-        vm.films = response.data;
+    FilmFactory.getAllFilms().then(function(response) {
+        vm.films = response;
     });
 
     vm.name = 'Teste';
