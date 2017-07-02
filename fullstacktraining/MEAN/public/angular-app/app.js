@@ -1,8 +1,7 @@
-angular.module('meanhotel', ['ngRoute']).config(config).run(run);
+angular.module('meanhotel', ['ngRoute', 'angular-jwt']).config(config).run(run);
 
 function config($httpProvider, $routeProvider, $locationProvider) {
     $httpProvider.interceptors.push('AuthInterceptor');
-
     $locationProvider.hashPrefix('');
     $routeProvider
         .when('/', {
@@ -37,7 +36,6 @@ function config($httpProvider, $routeProvider, $locationProvider) {
         })
         .when('/profile', {
             templateUrl: 'angular-app/profile/profile.html',
-            controllerAs: 'vm',
             access: {
                 restricted: true
             }
@@ -47,3 +45,11 @@ function config($httpProvider, $routeProvider, $locationProvider) {
         });
 }
 
+function run($rootScope, $location, $window, AuthFactory) {
+    $rootScope.$on('$routeChangeStart', function (event, nextRoute, currentRoute) {
+        if (nextRoute.access !== undefined && nextRoute.access.restricted && !$window.sessionStorage.token && !AuthFactory.isLoggedIn) {
+            event.preventDefault();
+            $location.path('/');
+        }
+    });
+}
